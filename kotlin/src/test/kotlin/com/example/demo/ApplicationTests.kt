@@ -15,14 +15,14 @@ import reactor.test.test
 @ContextConfiguration(classes = arrayOf(Application::class))
 class ApplicationTests {
 
-    @Value("#{@nettyHttpServer.port()}")
+    @Value("#{@nettyContext.address().getPort()}")
     var port = 8080
 
     lateinit var client: WebClient
 
     @Before
     fun setup() {
-        client = WebClient.create("http://localhost:" + this.port)
+        client = WebClient.create("http://localhost:8080")
     }
 
     @Test

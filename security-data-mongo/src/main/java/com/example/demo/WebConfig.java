@@ -5,5 +5,4 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 
 @Configuration
 @EnableWebFlux
-public class WebConfig {
-}
+public class WebConfig{}

@@ -4,9 +4,8 @@ import org.springframework.context.support.GenericApplicationContext
 import org.springframework.http.server.reactive.HttpHandler
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder
-import reactor.netty.DisposableServer
-import reactor.netty.http.server.HttpServer
-
+import reactor.ipc.netty.http.server.HttpServer
+import reactor.ipc.netty.tcp.BlockingNettyContext
 
 class Application {
 
@@ -14,28 +13,28 @@ class Application {
 
     private val server: HttpServer
 
-    private var nettyContext: DisposableServer? = null
+    private var nettyContext: BlockingNettyContext? = null
 
     constructor(port: Int = 8080) {
         val context = GenericApplicationContext()
         beans().initialize(context)
         context.refresh()
         context.getBean(DataInitializr::class.java).initData()
-        server = HttpServer.create().host("localhost").port(port)
+        server = HttpServer.create(port)
         httpHandler = WebHttpHandlerBuilder.applicationContext(context)
                 .build()
     }
 
     fun start() {
-        nettyContext = server.handle(ReactorHttpHandlerAdapter(httpHandler)).bindNow()
+        nettyContext = server.start(ReactorHttpHandlerAdapter(httpHandler))
     }
 
     fun startAndAwait() {
-        server.handle(ReactorHttpHandlerAdapter(httpHandler)).bindNow().onDispose().block()
+        server.startAndAwait(ReactorHttpHandlerAdapter(httpHandler), { nettyContext = it })
     }
 
     fun stop() {
-        nettyContext?.disposeNow()
+        nettyContext?.shutdown()
     }
 }
 

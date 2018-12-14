@@ -22,7 +22,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @ContextConfiguration(classes = Application.class)
 public class IntegrationTests {
 
-    @Value("#{@nettyHttpServer.port()}")
+    @Value("#{@nettyContext.address().getPort()}")
     int port;
 
     WebTestClient rest;

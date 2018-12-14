@@ -12,11 +12,13 @@ import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
-import reactor.netty.DisposableServer;
-import reactor.netty.http.server.HttpServer;
+import reactor.ipc.netty.NettyContext;
+import reactor.ipc.netty.http.server.HttpServer;
+
 
 @Configuration
 @ComponentScan
+@EnableWebFlux
 @PropertySource(value = "classpath:application.properties", ignoreResourceNotFound = true)
 public class Application {
 
@@ -25,18 +27,19 @@ public class Application {
 
     public static void main(String[] args) throws Exception {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-            Application.class)) {
-            context.getBean(DisposableServer.class).onDispose().block();
+                Application.class)) {
+            context.getBean(NettyContext.class).onClose().block();
         }
     }
 
     @Profile("default")
     @Bean
-    public DisposableServer nettyHttpServer(ApplicationContext context) {
+    public NettyContext nettyContext(ApplicationContext context) {
         HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context).build();
         ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
-        HttpServer httpServer = HttpServer.create().host("localhost").port(this.port);
-        return httpServer.handle(adapter).bindNow();
+        HttpServer httpServer = HttpServer.create("localhost", this.port);
+        return httpServer.newHandler(adapter).block();
     }
 
 }
+

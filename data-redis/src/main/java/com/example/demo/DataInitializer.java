@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 /**
+ *
  * @author hantsy
  */
 @Component
@@ -56,12 +56,13 @@ class DataInitializer {
             .sAdd(
                 ByteBuffer.wrap("users:user:favorites".getBytes()),
                 this.posts.findAll()
-                    .map(p -> ByteBuffer.wrap(p.getId().getBytes()))
-                    .collectList().block()
+                    .stream()
+                    .map(p -> p.getId().getBytes())
+                    .map(ByteBuffer::wrap)
+                    .collect(Collectors.toList())
             )
-            //.log()
-            .doOnSuccess(s -> log.info("added favirates...#" + s))
-            .subscribe();
+            .log()
+            .subscribe(null, null, ()-> log.info("added favirates..."));
 
         log.info("print ramdon keys  ...");
         ReactiveKeyCommands keyCommands = conn.keyCommands();
@@ -76,12 +77,10 @@ class DataInitializer {
     }
 
     private void initPosts() {
-        this.posts.deleteAll()
-            .thenMany(
-                Flux.just("Post one", "Post two")
-                    .flatMap(title -> this.posts.save(Post.builder().id(UUID.randomUUID().toString()).title(title).content("content of " + title).build()))
-            );
-            //.subscribe(null, null, () -> log.info("done posts initialization..."));
+        this.posts.deleteAll();
+        Stream.of("Post one", "Post two").forEach(
+            title -> this.posts.save(Post.builder().id(UUID.randomUUID().toString()).title(title).content("content of " + title).build())
+        );
     }
 
     private static String toString(ByteBuffer byteBuffer) {
