@@ -6,10 +6,28 @@
 package com.example.demo;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.keyvalue.repository.KeyValueRepository;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-interface PostRepository extends KeyValueRepository<Post, String> {
+@Repository
+@RequiredArgsConstructor
+class PostRepository {
+    private final ReactiveRedisOperations<String, Post> reactiveRedisOperations;
 
-    @Override
-    public List<Post> findAll();
+    public Flux<Post> findAll(){
+        return this.reactiveRedisOperations.opsForList().range("posts", 0, -1);
+    }
+
+    public Mono<Long> save(Post post){
+        return this.reactiveRedisOperations.opsForList().rightPush("posts", post);
+    }
+
+    public Mono<Boolean> deleteAll() {
+        return this.reactiveRedisOperations.opsForList().delete("posts");
+    }
 }
