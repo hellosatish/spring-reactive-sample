@@ -90,7 +90,6 @@ class SecurityConfig {
                 //.pathMatchers("/users/{user}/**").access(this::currentUserMatchesPath)
                 .anyExchange().permitAll()
                 .and()
-                .csrf().disable()
                 .build();
     }
 

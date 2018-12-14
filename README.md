@@ -159,7 +159,7 @@ The final pom.xml looks like:
         </dependency>
         
         <dependency>
-            <groupId>io.projectreactor.netty</groupId>
+            <groupId>io.projectreactor.ipc</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
         
@@ -362,7 +362,7 @@ According to the official documention, in [WebFlux framework](http://docs.spring
 
 #### Apache Tomcat
 
-Create a general main class to run the application grammatically. 
+Create a general main class to run the application programticially. 
 
 ```java
 ApplicationContext context = new AnnotationConfigApplicationContext(WebConfig.class, SecurityConfig.class);  
@@ -506,7 +506,7 @@ And add `reactor-netty` in your project dependencies.
 
 ```xml
 <dependency>
-	<groupId>io.projectreactor.netty</groupId>
+	<groupId>io.projectreactor.ipc</groupId>
 	<artifactId>reactor-netty</artifactId>
 </dependency>
 ```
@@ -731,7 +731,7 @@ At the moment, Data Redis, Data MongoDB and Data Cassandra will be the first-cla
 
 ### Spring Data Mongo
 
-Spring Data Mongo provides reactive variants of `MongoTemplate` and `MongoRepository`, aka `ReactiveMongoTemplate` and `ReactiveMongoRepository` which have reactive capablities.
+Spring Data Mongo provides reactive variants of `MongoTemplate` and `MongoRepsoitory`, aka `ReactiveMongoTemplate` and `ReactiveMongoRepository` which have reactive capablities.
 
 Add the following into project dependencies.
 
